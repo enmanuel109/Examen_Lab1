@@ -8,6 +8,9 @@ package examen_lab1;
  *
  * @author Cantarero
  */
-public class MenuActions {
-    
+public interface MenuActions {
+
+    void submenu();
+
+    void ejecutarOpcion(int opcion);
 }
