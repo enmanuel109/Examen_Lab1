@@ -1,5 +1,10 @@
 package examen_lab1;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Image;
 import java.util.ArrayList;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -46,6 +51,7 @@ public class MenuPrincipal extends BaseGUI {
         btnSalir.addActionListener(e -> dispose());
         btnAgregarItem.addActionListener(e -> agregarItem());
         btnRentar.addActionListener(e -> Rentar());
+        btnImprimir.addActionListener(e -> imprimirTodo());
 
         setContentPane(panelPrincipal);
     }
@@ -158,6 +164,83 @@ public class MenuPrincipal extends BaseGUI {
 
         VentanaRenta vr = new VentanaRenta(encontrado);
         vr.setVisible(true);
+    }
+
+    private void imprimirTodo() {
+        if (rentItems.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "No hay ítems registrados", "Ver ítems", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        JPanel listado = new JPanel();
+        listado.setLayout(new BoxLayout(listado, BoxLayout.Y_AXIS));
+        listado.setBackground(panelPrincipal.getBackground());
+        listado.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        for (RentItem r : rentItems) {
+            JPanel card = new JPanel(new BorderLayout(10, 10));
+            card.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
+            card.setBackground(Color.WHITE);
+            card.setMaximumSize(new Dimension(700, 260));
+            card.setPreferredSize(new Dimension(700, 260));
+
+            JLabel imgLabel = new JLabel();
+            imgLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            imgLabel.setVerticalAlignment(SwingConstants.CENTER);
+            if (r.getImagen() != null) {
+                ImageIcon original = r.getImagen();
+                Image scaled = original.getImage().getScaledInstance(160, 200, Image.SCALE_SMOOTH);
+                imgLabel.setIcon(new ImageIcon(scaled));
+            } else {
+                imgLabel.setPreferredSize(new Dimension(160, 200));
+                imgLabel.setText("(Sin imagen)");
+            }
+            imgLabel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+            card.add(imgLabel, BorderLayout.WEST);
+
+            JTextArea ta = new JTextArea();
+            ta.setEditable(false);
+            ta.setOpaque(false);
+            if (lblTitulo != null) {
+                ta.setFont(lblTitulo.getFont().deriveFont(Font.PLAIN, 14f));
+            } else {
+                ta.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+            }
+            StringBuilder sb = new StringBuilder();
+            sb.append("Código: ").append(r.getCodigo()).append("\n");
+            sb.append("Nombre: ").append(r.getNombre()).append("\n");
+            if (r instanceof Movie) {
+                try {
+                    sb.append("Estado: ").append(((Movie) r).getEstado()).append("\n");
+                } catch (Exception ex) {
+                }
+            }
+            sb.append(String.format("Precio renta: %.2f Lps/día\n", r.getPrecioBase()));
+            ta.setText(sb.toString());
+            ta.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+            card.add(ta, BorderLayout.CENTER);
+
+            listado.add(card);
+            listado.add(Box.createVerticalStrut(10));
+        }
+
+        JScrollPane scroll = new JScrollPane(listado, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scroll.setPreferredSize(new Dimension(730, 480));
+        scroll.getVerticalScrollBar().setUnitIncrement(16);
+
+        JPanel dialogPanel = new JPanel(new BorderLayout(8, 8));
+        dialogPanel.setBackground(panelPrincipal.getBackground());
+        JLabel title = new JLabel("LISTADO DE ÍTEMS", SwingConstants.CENTER);
+        if (lblTitulo != null) {
+            title.setFont(lblTitulo.getFont());
+        } else {
+            title.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        }
+        title.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
+        dialogPanel.add(title, BorderLayout.NORTH);
+        dialogPanel.add(scroll, BorderLayout.CENTER);
+
+        JOptionPane.showMessageDialog(this, dialogPanel, "Listado de Ítems", JOptionPane.PLAIN_MESSAGE);
     }
 
     public static void main(String[] args) {
