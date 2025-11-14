@@ -4,10 +4,16 @@
  */
 package examen_lab1;
 
+import java.awt.GridLayout;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 
 /**
  *
@@ -42,39 +48,6 @@ public class Game extends RentItem implements MenuActions {
         listarRec(index + 1);
     }
 
-    public void submenu() {
-        while (true) {
-            String input = JOptionPane.showInputDialog(
-                    null,
-                    "--- Submenu de " + getNombre() + " ---\n"
-                    + "1) Actualizar fecha de publicacion\n"
-                    + "2) Agregar especificacion\n"
-                    + "3) Ver especificaciones\n"
-                    + "4) Salir",
-                    JOptionPane.QUESTION_MESSAGE
-            );
-
-            if (input == null) {
-                break;
-            }
-
-            int opcion;
-
-            try {
-                opcion = Integer.parseInt(input);
-            } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(null, "Opcion invalida", "Error", JOptionPane.ERROR_MESSAGE);
-                continue;
-            }
-
-            if (opcion == 4) {
-                break;
-            }
-
-            ejecutarOpcion(opcion);
-        }
-    }
-
     @Override
     public double pagoRenta(int dias) {
         return 20 * dias;
@@ -88,36 +61,79 @@ public class Game extends RentItem implements MenuActions {
         return super.toString() + " | Publicacion: " + fecha + " – PS3 Game";
     }
 
+    public void submenu() {
+        JFrame Submenu = new JFrame("Submenu de " + getNombre());
+        Submenu.setSize(350, 250);
+        Submenu.setLocationRelativeTo(null);
+        Submenu.setLayout(new GridLayout(5, 1));
+        Submenu.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+        JButton BtnFecha = new JButton("Actualizar fecha de publicacion");
+        JButton BtnAgregarEspecificacion = new JButton("Agregar especificacion");
+        JButton BtnVerEspecificacion = new JButton("Ver especificaciones");
+        JButton BtnSalir = new JButton("Salir");
+
+        BtnFecha.addActionListener(e -> ejecutarOpcion(1));
+
+        BtnAgregarEspecificacion.addActionListener(e -> ejecutarOpcion(2));
+
+        BtnVerEspecificacion.addActionListener(e -> ejecutarOpcion(3));
+
+        BtnSalir.addActionListener(e -> Submenu.dispose());
+
+        Submenu.add(new JLabel("Submenu de " + getNombre(), SwingConstants.CENTER));
+        Submenu.add(BtnFecha);
+        Submenu.add(BtnAgregarEspecificacion);
+        Submenu.add(BtnVerEspecificacion);
+        Submenu.add(BtnSalir);
+
+        Submenu.setVisible(true);
+    }
+
     @Override
     public void ejecutarOpcion(int opcion) {
         switch (opcion) {
+
             case 1:
-                String Year = JOptionPane.showInputDialog(null, "Año de publicacio:");
-                String Month = JOptionPane.showInputDialog(null, "Mes (1-12):");
-                String DAY = JOptionPane.showInputDialog(null, "Día:");
+                JFrame fechaFrame = new JFrame("Actualizar fecha");
+                fechaFrame.setSize(300, 200);
+                fechaFrame.setLayout(new GridLayout(4, 2));
+                fechaFrame.setLocationRelativeTo(null);
 
-                if (Year == null || Month == null || DAY == null) {
-                    return;
-                }
+                JTextField TxtYear = new JTextField();
+                JTextField TxtMonth = new JTextField();
+                JTextField TxtDay = new JTextField();
+                JButton btnGuardar = new JButton("Guardar");
 
-                try {
-                    int NewYear = Integer.parseInt(Year);
-                    int NewMonth = Integer.parseInt(Month);
-                    int NewDay = Integer.parseInt(DAY);
+                fechaFrame.add(new JLabel("Año:"));
+                fechaFrame.add(TxtYear);
+                fechaFrame.add(new JLabel("Mes (1-12):"));
+                fechaFrame.add(TxtMonth);
+                fechaFrame.add(new JLabel("Dia:"));
+                fechaFrame.add(TxtDay);
+                fechaFrame.add(btnGuardar);
 
-                    setFechaPublicacion(NewYear, NewMonth, NewDay);
-                    JOptionPane.showMessageDialog(null, "Fecha actualizada");
+                btnGuardar.addActionListener(ev -> {
+                    try {
+                        int Year = Integer.parseInt(TxtYear.getText());
+                        int Month = Integer.parseInt(TxtMonth.getText());
+                        int Day = Integer.parseInt(TxtDay.getText());
+                        setFechaPublicacion(Year, Month, Day);
+                        JOptionPane.showMessageDialog(null, "Fecha actualizada");
+                        fechaFrame.dispose();
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(null, "Datos invalidos");
+                    }
+                });
 
-                } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(null, "Datos invalidos.", "Error", JOptionPane.ERROR_MESSAGE);
-                }
+                fechaFrame.setVisible(true);
                 break;
 
             case 2:
-                String NewEspecificacion = JOptionPane.showInputDialog(null, "Ingrese nueva especificacion:");
-                if (NewEspecificacion != null && !NewEspecificacion.trim().isEmpty()) {
-                    especificaciones.add(NewEspecificacion.trim());
-                    JOptionPane.showMessageDialog(null, "Especificacion agregada.");
+                String esp = JOptionPane.showInputDialog("Ingrese nueva especificacion:");
+                if (esp != null && !esp.trim().isEmpty()) {
+                    especificaciones.add(esp.trim());
+                    JOptionPane.showMessageDialog(null, "Especificacion agregada");
                 }
                 break;
 
@@ -126,7 +142,7 @@ public class Game extends RentItem implements MenuActions {
                 break;
 
             default:
-                JOptionPane.showMessageDialog(null, "Opcion no valida.", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Opcion no valida.");
         }
     }
 
