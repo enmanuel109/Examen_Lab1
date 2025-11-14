@@ -8,6 +8,9 @@ import java.awt.Image;
 import java.util.ArrayList;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import com.toedter.calendar.JDateChooser;
+import java.util.Calendar;
+import java.util.Date;
 
 public class MenuPrincipal extends BaseGUI {
 
@@ -15,6 +18,7 @@ public class MenuPrincipal extends BaseGUI {
     private JButton btnAgregarItem, btnRentar, btnEjecutar, btnSalir, btnImprimir;
     private JLabel lblTitulo;
     public static ArrayList<RentItem> rentItems = new ArrayList<>();
+    private Game game;
 
     public MenuPrincipal() {
         super("Menu Principal", 615, 550);
@@ -52,6 +56,7 @@ public class MenuPrincipal extends BaseGUI {
         btnAgregarItem.addActionListener(e -> agregarItem());
         btnRentar.addActionListener(e -> Rentar());
         btnImprimir.addActionListener(e -> imprimirTodo());
+        btnEjecutar.addActionListener(e -> ejecutarSubMenu());
 
         setContentPane(panelPrincipal);
     }
@@ -101,7 +106,7 @@ public class MenuPrincipal extends BaseGUI {
 
         RentItem nuevo;
 
-        if (tipo == 0) {
+        if (tipo == 0) { // Movie
             String precioStr = JOptionPane.showInputDialog(this, "Precio base de renta:");
             if (precioStr == null) {
                 return;
@@ -113,10 +118,51 @@ public class MenuPrincipal extends BaseGUI {
                 JOptionPane.showMessageDialog(this, "Precio inválido.", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-            nuevo = new Movie(codigo, nombre, precio);
-        } else {
+
+            Movie m = new Movie(codigo, nombre, precio);
+
+            JDateChooser chooserFecha = new JDateChooser();
+            chooserFecha.setDate(new Date());
+            chooserFecha.setPreferredSize(new Dimension(200, 30));
+
+            int respFecha = JOptionPane.showConfirmDialog(
+                    this,
+                    chooserFecha,
+                    "Seleccione fecha de estreno",
+                    JOptionPane.OK_CANCEL_OPTION,
+                    JOptionPane.PLAIN_MESSAGE
+            );
+
+            if (respFecha == JOptionPane.OK_OPTION && chooserFecha.getDate() != null) {
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(chooserFecha.getDate());
+                m.setFechaEstreno(cal);
+            }
+
+            nuevo = m;
+
+        } else { // Game
             nuevo = new Game(codigo, nombre);
         }
+
+        String copStr = JOptionPane.showInputDialog(this, "Cantidad de copias disponibles:");
+        if (copStr == null) {
+            return;
+        }
+
+        int copias;
+        try {
+            copias = Integer.parseInt(copStr);
+            if (copias < 0) {
+                JOptionPane.showMessageDialog(this, "La cantidad de copias no puede ser negativa.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Cantidad de copias inválida.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        nuevo.cantCopias = copias;
 
         JFileChooser chooser = new JFileChooser();
         chooser.setFileFilter(new FileNameExtensionFilter("Imágenes", "jpg", "jpeg", "png", "gif"));
@@ -241,6 +287,10 @@ public class MenuPrincipal extends BaseGUI {
         dialogPanel.add(scroll, BorderLayout.CENTER);
 
         JOptionPane.showMessageDialog(this, dialogPanel, "Listado de Ítems", JOptionPane.PLAIN_MESSAGE);
+    }
+    
+    private void ejecutarSubMenu() {
+        game.submenu();
     }
 
     public static void main(String[] args) {

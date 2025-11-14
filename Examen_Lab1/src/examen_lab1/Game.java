@@ -36,6 +36,10 @@ public class Game extends RentItem implements MenuActions {
         this.Fecha_Publicacion = FechaPublicacion;
     }
 
+    public Calendar getFechaPublicacion() {
+        return Fecha_Publicacion;
+    }
+
     public void listEspecificaciones() {
         listarRec(0);
     }

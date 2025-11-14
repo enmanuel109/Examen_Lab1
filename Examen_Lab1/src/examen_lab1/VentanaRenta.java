@@ -1,7 +1,8 @@
 package examen_lab1;
 
 import java.awt.Color;
-import java.awt.Dimension;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
@@ -19,7 +20,7 @@ public class VentanaRenta extends BaseGUI {
     private RentItem item;
 
     public VentanaRenta(RentItem item) {
-        super("Rentar Ítem", 540, 330);
+        super("Rentar Ítem", 540, 370);
         this.item = item;
         initComponents();
     }
@@ -49,40 +50,29 @@ public class VentanaRenta extends BaseGUI {
         txtInfo.setLineWrap(true);
         txtInfo.setWrapStyleWord(true);
         txtInfo.setBorder(null);
-        txtInfo.setBounds(220, 80, 280, 90);
-
-        String info = "Código: " + item.getCodigo()
-                + "\nNombre: " + item.getNombre()
-                + "\nPrecio base: " + item.getPrecioBase() + " Lps";
-
-        if (item instanceof Movie) {
-            Movie m = (Movie) item;
-            info = info + "\nEstado: " + m.getEstado();
-        } else if (item instanceof Game) {
-            info = info + "\nTipo: Videojuego";
-        }
-
-        txtInfo.setText(info);
+        txtInfo.setBounds(220, 80, 280, 100);
+        txtInfo.setFont(txtInfo.getFont().deriveFont(14f));
+        actualizarInfo();
         panelPrincipal.add(txtInfo);
 
         JLabel lblDias = new JLabel("Días de renta:");
-        lblDias.setBounds(220, 185, 120, 30);
+        lblDias.setBounds(220, 225, 120, 30);
         lblDias.setFont(lblDias.getFont().deriveFont(14f));
         panelPrincipal.add(lblDias);
 
-        txtDias = createTextField(330, 185, 80, 30);
+        txtDias = createTextField(330, 225, 80, 30);
         txtDias.setBorder(new CompoundBorder(
                 new LineBorder(new Color(220, 220, 220), 1, true),
-                new EmptyBorder(3, 10, 3, 10) // menos padding vertical
+                new EmptyBorder(3, 10, 3, 10)
         ));
         panelPrincipal.add(txtDias);
 
         btnCalcular = createBtn("Calcular");
-        btnCalcular.setBounds(223, 236, 105, 28);
+        btnCalcular.setBounds(223, 266, 105, 28);
         panelPrincipal.add(btnCalcular);
 
         btnCerrar = createBtn("Cerrar");
-        btnCerrar.setBounds(350, 235, 110, 30);
+        btnCerrar.setBounds(350, 265, 110, 30);
         panelPrincipal.add(btnCerrar);
 
         btnCerrar.addActionListener(e -> dispose());
@@ -91,7 +81,39 @@ public class VentanaRenta extends BaseGUI {
         setContentPane(panelPrincipal);
     }
 
+    private void actualizarInfo() {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+
+        String info = "Código: " + item.getCodigo()
+                + "\nNombre: " + item.getNombre()
+                + "\nPrecio base: " + item.getPrecioBase() + " Lps"
+                + "\nCopias disponibles: " + item.cantCopias;
+
+        if (item instanceof Movie) {
+            Movie m = (Movie) item;
+            Calendar c = m.getFechaEstreno();
+            String fecha = sdf.format(c.getTime());
+            info = info
+                    + "\nEstado: " + m.getEstado()
+                    + "\nFecha de estreno: " + fecha;
+        } else if (item instanceof Game) {
+            Game g = (Game) item;
+            Calendar c = g.getFechaPublicacion();
+            String fecha = sdf.format(c.getTime());
+            info = info
+                    + "\nTipo: Videojuego"
+                    + "\nFecha de publicación: " + fecha;
+        }
+
+        txtInfo.setText(info);
+    }
+
     private void calcularRenta() {
+        if (item.cantCopias <= 0) {
+            JOptionPane.showMessageDialog(this, "No hay copias disponibles.", "Sin stock", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         String diasStr = txtDias.getText();
         if (diasStr == null || diasStr.trim().isEmpty()) {
             JOptionPane.showMessageDialog(this, "Ingrese la cantidad de días.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -112,9 +134,13 @@ public class VentanaRenta extends BaseGUI {
 
         double total = item.pagoRenta(dias);
 
+        item.cantCopias--;
+        actualizarInfo();
+
         JOptionPane.showMessageDialog(
                 this,
-                "Monto total de la renta: " + total + " Lps",
+                "Monto total de la renta: " + total + " Lps"
+                + "\nCopias restantes: " + item.cantCopias,
                 "Total Renta",
                 JOptionPane.INFORMATION_MESSAGE
         );
@@ -123,6 +149,7 @@ public class VentanaRenta extends BaseGUI {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             RentItem demo = new Movie(1, "Pelicula demo", 50);
+            demo.cantCopias = 3;
             VentanaRenta v = new VentanaRenta(demo);
             v.setVisible(true);
         });
