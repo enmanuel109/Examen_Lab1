@@ -50,6 +50,7 @@ public class MenuPrincipal extends BaseGUI {
 
         btnSalir = createBtn("Salir");
         btnSalir.setBounds(480, 455, 80, 40);
+        btnSalir.setBackground(Color.red);
         panelPrincipal.add(btnSalir);
 
         btnSalir.addActionListener(e -> dispose());
@@ -106,7 +107,7 @@ public class MenuPrincipal extends BaseGUI {
 
         RentItem nuevo;
 
-        if (tipo == 0) { // Movie
+        if (tipo == 0) {
             String precioStr = JOptionPane.showInputDialog(this, "Precio base de renta:");
             if (precioStr == null) {
                 return;
@@ -141,7 +142,7 @@ public class MenuPrincipal extends BaseGUI {
 
             nuevo = m;
 
-        } else { // Game
+        } else {
             nuevo = new Game(codigo, nombre);
         }
 
@@ -290,7 +291,6 @@ public class MenuPrincipal extends BaseGUI {
     }
 
     private void ejecutarSubMenu() {
-        // Filtrar solo los juegos en la lista
         ArrayList<Game> juegos = new ArrayList<>();
         for (RentItem ri : rentItems) {
             if (ri instanceof Game) {
@@ -303,13 +303,11 @@ public class MenuPrincipal extends BaseGUI {
             return;
         }
 
-        // Crear un arreglo de nombres para mostrar en el diálogo
         String[] opciones = new String[juegos.size()];
         for (int i = 0; i < juegos.size(); i++) {
             opciones[i] = juegos.get(i).getNombre();
         }
 
-        // Pedir al usuario que seleccione un juego
         String seleccionado = (String) JOptionPane.showInputDialog(
                 this,
                 "Seleccione un juego:",
@@ -321,7 +319,6 @@ public class MenuPrincipal extends BaseGUI {
         );
 
         if (seleccionado != null) {
-            // Buscar el objeto Game correspondiente y abrir su submenu
             for (Game g : juegos) {
                 if (g.getNombre().equals(seleccionado)) {
                     g.submenu();
@@ -331,7 +328,4 @@ public class MenuPrincipal extends BaseGUI {
         }
     }
 
-    public static void main(String[] args) {
-        new MenuPrincipal().setVisible(true);
-    }
 }

@@ -73,6 +73,7 @@ public class VentanaRenta extends BaseGUI {
 
         btnCerrar = createBtn("Cerrar");
         btnCerrar.setBounds(350, 265, 110, 30);
+        btnCerrar.setBackground(Color.red);
         panelPrincipal.add(btnCerrar);
 
         btnCerrar.addActionListener(e -> dispose());
@@ -144,14 +145,5 @@ public class VentanaRenta extends BaseGUI {
                 "Total Renta",
                 JOptionPane.INFORMATION_MESSAGE
         );
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            RentItem demo = new Movie(1, "Pelicula demo", 50);
-            demo.cantCopias = 3;
-            VentanaRenta v = new VentanaRenta(demo);
-            v.setVisible(true);
-        });
     }
 }
