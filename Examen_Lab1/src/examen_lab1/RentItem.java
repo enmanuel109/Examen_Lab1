@@ -10,7 +10,6 @@ import javax.swing.ImageIcon;
  *
  * @author esteb
  */
-
 /*
 Cree una clase abstracta y base llamada RentItem con los siguientes atributos:
 Código del ítem (único).
