@@ -41,15 +41,33 @@ public class Game extends RentItem implements MenuActions {
     }
 
     public void listEspecificaciones() {
-        listarRec(0);
-    }
-
-    private void listarRec(int index) {
-        if (index >= especificaciones.size()) {
+        if (especificaciones.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "No hay especificaciones registradas.", "Especificaciones", JOptionPane.INFORMATION_MESSAGE);
             return;
         }
-        System.out.println("- " + especificaciones.get(index));
-        listarRec(index + 1);
+
+        JFrame frame = new JFrame("Especificaciones de " + getNombre());
+        frame.setSize(400, 300);
+        frame.setLocationRelativeTo(null);
+        frame.setLayout(new GridLayout(1, 1));
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+        javax.swing.JTextArea textArea = new javax.swing.JTextArea();
+        textArea.setText(listarRecursivo(0));
+        textArea.setEditable(false);
+
+        javax.swing.JScrollPane scrollPane = new javax.swing.JScrollPane(textArea);
+        frame.add(scrollPane);
+
+        frame.setVisible(true);
+    }
+
+    private String listarRecursivo(int indice) {
+        if (indice >= especificaciones.size()) {
+            return "";
+        }
+        String linea = (indice + 1) + ". " + especificaciones.get(indice) + "\n";
+        return linea + listarRecursivo(indice + 1);
     }
 
     @Override

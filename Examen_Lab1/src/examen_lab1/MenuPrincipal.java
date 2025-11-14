@@ -288,9 +288,47 @@ public class MenuPrincipal extends BaseGUI {
 
         JOptionPane.showMessageDialog(this, dialogPanel, "Listado de Ítems", JOptionPane.PLAIN_MESSAGE);
     }
-    
+
     private void ejecutarSubMenu() {
-        game.submenu();
+        // Filtrar solo los juegos en la lista
+        ArrayList<Game> juegos = new ArrayList<>();
+        for (RentItem ri : rentItems) {
+            if (ri instanceof Game) {
+                juegos.add((Game) ri);
+            }
+        }
+
+        if (juegos.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "No hay juegos registrados.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Crear un arreglo de nombres para mostrar en el diálogo
+        String[] opciones = new String[juegos.size()];
+        for (int i = 0; i < juegos.size(); i++) {
+            opciones[i] = juegos.get(i).getNombre();
+        }
+
+        // Pedir al usuario que seleccione un juego
+        String seleccionado = (String) JOptionPane.showInputDialog(
+                this,
+                "Seleccione un juego:",
+                "Seleccionar Game",
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                opciones,
+                opciones[0]
+        );
+
+        if (seleccionado != null) {
+            // Buscar el objeto Game correspondiente y abrir su submenu
+            for (Game g : juegos) {
+                if (g.getNombre().equals(seleccionado)) {
+                    g.submenu();
+                    break;
+                }
+            }
+        }
     }
 
     public static void main(String[] args) {
