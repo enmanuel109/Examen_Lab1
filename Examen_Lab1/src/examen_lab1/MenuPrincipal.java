@@ -1,13 +1,15 @@
 package examen_lab1;
 
+import java.util.ArrayList;
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class MenuPrincipal extends BaseGUI {
 
-    //variables
     private JPanel panelPrincipal;
     private JButton btnAgregarItem, btnRentar, btnEjecutar, btnSalir, btnImprimir;
     private JLabel lblTitulo;
+    public static ArrayList<RentItem> rentItems = new ArrayList<>();
 
     public MenuPrincipal() {
         super("Menu Principal", 615, 550);
@@ -41,29 +43,14 @@ public class MenuPrincipal extends BaseGUI {
         btnSalir.setBounds(480, 455, 80, 40);
         panelPrincipal.add(btnSalir);
 
-        //listeners
         btnSalir.addActionListener(e -> dispose());
-
         btnAgregarItem.addActionListener(e -> agregarItem());
+        btnRentar.addActionListener(e -> Rentar());
 
         setContentPane(panelPrincipal);
     }
 
-    //funciones de los botones
     private void agregarItem() {
-        /*
-        Medio importante (funcionamiento de un option dialog):
-        int respuesta = JOptionPane.showOptionDialog(
-        frame padre (this),
-        mensaje,
-        título de la ventana,
-        optionType,
-        messageType,
-        icono (opcional, yo puse null),
-        options (arreglo con el texto de los botones),
-        default option
-         */
-
         String opciones[] = {"Movie", "Game"};
         int tipo = JOptionPane.showOptionDialog(
                 this,
@@ -78,9 +65,9 @@ public class MenuPrincipal extends BaseGUI {
 
         if (tipo == JOptionPane.CLOSED_OPTION) {
             return;
-        } //si no se pone esto lo lleva al otro joption
+        }
 
-        String codStr = JOptionPane.showInputDialog(this, "Código (entero):");
+        String codStr = JOptionPane.showInputDialog(this, "Código (número entero):");
         if (codStr == null) {
             return;
         }
@@ -93,11 +80,84 @@ public class MenuPrincipal extends BaseGUI {
             return;
         }
 
-        //en construcción
+        for (RentItem ri : rentItems) {
+            if (ri.getCodigo() == codigo) {
+                JOptionPane.showMessageDialog(this, "El código ya existe.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        }
+
+        String nombre = JOptionPane.showInputDialog(this, "Nombre del ítem:");
+        if (nombre == null || nombre.trim().isEmpty()) {
+            return;
+        }
+        nombre = nombre.trim();
+
+        RentItem nuevo;
+
+        if (tipo == 0) {
+            String precioStr = JOptionPane.showInputDialog(this, "Precio base de renta:");
+            if (precioStr == null) {
+                return;
+            }
+            double precio;
+            try {
+                precio = Double.parseDouble(precioStr);
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Precio inválido.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            nuevo = new Movie(codigo, nombre, precio);
+        } else {
+            nuevo = new Game(codigo, nombre);
+        }
+
+        JFileChooser chooser = new JFileChooser();
+        chooser.setFileFilter(new FileNameExtensionFilter("Imágenes", "jpg", "jpeg", "png", "gif"));
+        int resp = chooser.showOpenDialog(this);
+        if (resp == JFileChooser.APPROVE_OPTION) {
+            ImageIcon icon = new ImageIcon(chooser.getSelectedFile().getAbsolutePath());
+            nuevo.setImagen(icon);
+        }
+
+        rentItems.add(nuevo);
+        JOptionPane.showMessageDialog(this, "Ítem agregado correctamente.");
     }
-    
-    public void Rentar(){
-        //en construcción
+
+    public void Rentar() {
+        if (rentItems.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "No hay ítems registrados.", "Rentar", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        String codStr = JOptionPane.showInputDialog(this, "Ingrese el código del ítem a rentar:");
+        if (codStr == null) {
+            return;
+        }
+
+        int codigo;
+        try {
+            codigo = Integer.parseInt(codStr);
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Código inválido.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        RentItem encontrado = null;
+        for (RentItem ri : rentItems) {
+            if (ri.getCodigo() == codigo) {
+                encontrado = ri;
+                break;
+            }
+        }
+
+        if (encontrado == null) {
+            JOptionPane.showMessageDialog(this, "Item No Existe", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        VentanaRenta vr = new VentanaRenta(encontrado);
+        vr.setVisible(true);
     }
 
     public static void main(String[] args) {
